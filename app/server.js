@@ -33,7 +33,6 @@ module.exports = class Server {
   routes()  {
     new routes.example.ExampleController(this.app)
     new routes.producteurDechets.GetProducteurDechet(this.app)
-    new routes.test.TestController(this.app)
 
     // If route not exist
     this.app.use((req, res) => {
