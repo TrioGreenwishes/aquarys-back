@@ -37,7 +37,7 @@ const config = {
   user: process.env.BDD_USER,
   password: process.env.BDD_MDP,
   // local
-  server: process.env.BDD_SERVER, // You can use 'localhost\\instance' to connect to named instance
+  server: process.env.BDD_SERVER  +"\\" + "BIPREPROD", // You can use 'localhost\\instance' to connect to named instance
   // ikoula
  //  server: '193.56.15.196'
   database: process.env.BDD_NAME,
