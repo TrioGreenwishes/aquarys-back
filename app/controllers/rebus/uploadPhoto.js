@@ -18,12 +18,12 @@ module.exports = class UploadRebusController {
      * Middleware
      */
     async middleware() {
-        this.app.post('/rebus/uploadPhoto', upload.single('avatar'), async function (req, res, next) {
+        this.app.post('/rebus/uploadPhoto', upload.single('files'), async function (req, res, next) {
             if (!fs.existsSync('uploads/' + req.body.id)){
                 fs.mkdirSync('uploads/' + req.body.id);
             }
             const oldPath = 'uploads/' + req.file.filename
-            const newPath = 'uploads/' + req.body.id +  '/' + req.file.filename
+            const newPath = 'uploads/' + req.body.id +  '/' + req.file.originalname
             const finalPath = 'uploads/' + req.body.id +  '/'
 
             const track = await Track.findByPk(req.body.id)
@@ -31,14 +31,14 @@ module.exports = class UploadRebusController {
                 return res.status(400).json({ message: "L'id TRACK n'existe pas !" });
             }
 
-            const rebus = Rebus.update({ path_dossier_photo: finalPath }, { where: { id: req.body.id_rebus } }).then(rebus => {
+            const rebus = Rebus.update({ path_dossier_photo: finalPath }, { where: { id_track: req.body.id } }).then(rebus => {
                 if (rebus[0] !== 0) {
                     fs.rename(oldPath, newPath, function (err) {
                         if (err) throw err
-                        return res.json({ message: `Le rebus avec l'id= ${id_rebus} a été mise à jour avec succès.` });
+                        return res.json({ message: `Le rebus avec l'id= ${rebus.id} a été mise à jour avec succès.` });
                     })
                 } else {
-                    return res.status(404).json({ message: `Le rebus avec l'id= ${id_rebus} n'a pas été trouvée.` });
+                    return res.status(404).json({ message: `Le rebus avec l'id= ${rebus.id} n'a pas été trouvée.` });
                 };
             });
         })
