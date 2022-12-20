@@ -17,7 +17,7 @@ module.exports = class Login {
                 }
                 const user = await User.findOne({ where: { identifiant: req.query.identifiant} })
                 if (user === null) {
-                    return res.status(404).json({ message:"L'identifiant : " + req.body.identifiant + " n'existe pas" });
+                    return res.status(404).json({ message:"L'identifiant : " + req.query.identifiant + " n'existe pas" });
                   } else if (user.mdp != req.query.mdp){
                     return res.status(401).json({message: "The identifiant and MDP doesn't match"})
                   } else {
