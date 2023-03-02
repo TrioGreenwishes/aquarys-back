@@ -44,7 +44,7 @@ module.exports = class Server {
     new routes.rebus.UploadRebusController(this.app)
     new routes.produits.GetProductByIdProducteurDechet(this.app)
     new routes.login.Login(this.app)
-    
+    new routes.produits.GetDispositifProduit(this.app)
 
     // If route not exist
     this.app.use((req, res) => {
