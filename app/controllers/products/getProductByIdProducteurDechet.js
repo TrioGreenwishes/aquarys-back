@@ -14,7 +14,6 @@ module.exports = class GetProductByIdProducteurDechet {
      async middleware() {
       this.app.get(`/productByProducteurDechetId/get`, async (req, res) => {
         try {
-          console.log("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", req.query.id)
             const pool = await poolPromise
             const userCheck = `use New_Prod 
             select Distinct produits.id, produits.nom from producteurs_dechets

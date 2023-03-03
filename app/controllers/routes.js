@@ -20,6 +20,7 @@ const GetProducteurDechet = require("./producteur_dechet/getProducteurDechet");
 
 const GetProductByIdProducteurDechet = require("./products/getProductByIdProducteurDechet");
 const Login = require("./login/login")
+const GetDispositifProduit = require("./products/getDispositifProduit")
 
 
 module.exports = {
@@ -51,7 +52,8 @@ module.exports = {
     UploadRebusController
   },
   produits: {
-    GetProductByIdProducteurDechet
+    GetProductByIdProducteurDechet,
+    GetDispositifProduit
   },
   login:{
     Login
