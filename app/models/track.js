@@ -8,7 +8,8 @@ const Track = connectAquarys.define('track', {
   id_producteur_dechet: DataTypes.INTEGER,
   date_heure: DataTypes.DATEONLY,
   id_zone_lavage: DataTypes.INTEGER,
-  id_statut_track: DataTypes.INTEGER
+  id_statut_track: DataTypes.INTEGER,
+  numero_bon: DataTypes.INTEGER
 }, {
   timestamps: false,
   freezeTableName: true
