@@ -14,10 +14,10 @@ module.exports = class GetBonDeRepriseController {
      * Middleware
      */
     async middleware() {
-        this.app.get('/track/bon-de-reprise', async (req, res) => {
+        this.app.post('/track/bon-de-reprise', async (req, res) => {
             try {
                 res.setHeader("Access-Control-Allow-Origin", "*");
-                
+
                 if (!req.body.boxes || !req.body.id_producteur_dechet || !req.body.id_zone_lavage) {
                     return res.status(400).json({ message: 'Information missing' })
                 }
@@ -78,13 +78,17 @@ module.exports = class GetBonDeRepriseController {
                 ws.cell(4, 1).string("Date du bon")
                 ws.cell(4, 2).string(todaysDate)
 
-                ws.cell(10, 1).string('CASSES REÇUES').style(headerStyle)
+                ws.cell(8, 1).string('CASSES REÇUES').style(headerStyle)
 
                 for (let i = 0; i < boxes.length; i++) {
-                    ws.cell(i + 11, 1).string('Caisse № ' + boxes[i])
+                    ws.cell(i + 9, 1).string('Caisse № ' + boxes[i])
+
+                    if (i === boxes.length - 1) {
+                        ws.cell(i + 12, 1).string('SIGNATURE CLIENT').style(headerStyle)
+                    }
                 }
 
-                wb.write((todaysDate + ' ' + prodDechetName + '.xlsx'), res);
+                wb.write(('Bon de reprise' + todaysDate + ' ' + prodDechetName + '.xlsx'), res);
 
             } catch (error) {
                 return res.status(400).json({ message: error.message || "Une erreur s'est produite lors de generer le bon de livraison." });

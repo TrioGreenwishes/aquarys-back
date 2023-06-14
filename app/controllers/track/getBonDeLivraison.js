@@ -15,7 +15,7 @@ module.exports = class GetBonDeLivraisonController {
      * Middleware
      */
     async middleware() {
-        this.app.get('/track/bon-de-livraison', async (req, res) => {
+        this.app.post('/track/bon-de-livraison', async (req, res) => {
             try {
                 res.setHeader("Access-Control-Allow-Origin", "*");
 
