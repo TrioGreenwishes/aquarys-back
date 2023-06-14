@@ -98,22 +98,67 @@ module.exports = class GetBonDeLivraisonController {
                         color: 'FFFFFFFF',
                         bold: true
                     },
+                    border: {
+                        left: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        right: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        top: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        bottom: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        outline: false,
+                    },
                 })
 
+                const informationCellStyle = wb.createStyle({
+                    border: {
+                        left: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        right: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        top: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        bottom: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        outline: false,
+                    },
+                })
+
+                ws.column(1).setWidth(40);
+                ws.column(2).setWidth(30);
+
                 ws.cell(1, 1).string('BON DE LIVRAISON').style(headerStyle)
-                ws.cell(2, 1).string('Client')
-                ws.cell(2, 2).string(prodDechet.nom)
-                ws.cell(3, 1).string('Numero du bon')
-                ws.cell(3, 2).number(newNumeroBon)
-                ws.cell(4, 1).string("Date du bon")
-                ws.cell(4, 2).string(todaysDate)
+                ws.cell(1, 2).style(headerStyle)
+                ws.cell(2, 1).string('Client').style(informationCellStyle)
+                ws.cell(2, 2).string(prodDechet.nom).style(informationCellStyle)
+                ws.cell(3, 1).string('Numero du bon').style(informationCellStyle)
+                ws.cell(3, 2).number(newNumeroBon).style(informationCellStyle)
+                ws.cell(4, 1).string("Date du bon").style(informationCellStyle)
+                ws.cell(4, 2).string(todaysDate).style(informationCellStyle)
 
                 ws.cell(8, 1).string('CASSES PROPES CONCERNES').style(headerStyle)
 
                 let cellToInsertBox = 14
 
                 for (let i = 0; i < boxes.length; i++) {
-                    ws.cell(i + 9, 1).string('Caisse № ' + boxes[i])
+                    ws.cell(i + 9, 1).string('Caisse № ' + boxes[i]).style(informationCellStyle)
 
                     ws.cell(cellToInsertBox, 1).string('DETAIL CAISSE № ' + boxes[i]).style(headerStyle)
                     ws.cell(cellToInsertBox + 2, 1).string('TYPE DE CONTENTANT').style(headerStyle)
@@ -132,15 +177,22 @@ module.exports = class GetBonDeLivraisonController {
                                 const infoProduct = await Produits.findByPk(infoComptage[k].id_produit)
 
                                 if (infoProduct && infoComptage[k].nb_reel) {
-                                    ws.cell(cellToInsertProduct + k, 1).string(infoProduct.nom)
-                                    ws.cell(cellToInsertProduct + k, 2).number(infoComptage[k].nb_reel)
+                                    ws.cell(cellToInsertProduct + k, 1).string(infoProduct.nom).style(informationCellStyle)
+                                    ws.cell(cellToInsertProduct + k, 2).number(infoComptage[k].nb_reel).style(informationCellStyle)
                                 } else {
-                                    ws.cell(cellToInsertProduct + k, 1).string('SANS COMPTAGE')
-                                    ws.cell(cellToInsertProduct + k, 2).string('SANS COMPTAGE')
+                                    ws.cell(cellToInsertProduct + k, 1).string('SANS COMPTAGE').style(informationCellStyle)
+                                    ws.cell(cellToInsertProduct + k, 2).string('SANS COMPTAGE').style(informationCellStyle)
                                 }
 
                                 if (k === infoComptage.length - 1) {
                                     ws.cell(cellToInsertProduct + k + 4, 1).string('SIGNATURE CLIENT').style(headerStyle)
+                                    ws.cell(cellToInsertProduct + k + 4, 2).style(headerStyle)
+                                    ws.cell(cellToInsertProduct + k + 5, 1).style({ border: { left: { style: 'thick', color: "black" }, top: { style: 'thick', color: "black" } } })
+                                    ws.cell(cellToInsertProduct + k + 5, 2).style({ border: { right: { style: 'thick', color: "black" }, top: { style: 'thick', color: "black" } } })
+                                    ws.cell(cellToInsertProduct + k + 6, 1).style({ border: { left: { style: 'thick', color: "black" } } })
+                                    ws.cell(cellToInsertProduct + k + 6, 2).style({ border: { right: { style: 'thick', color: "black" } } })
+                                    ws.cell(cellToInsertProduct + k + 7, 1).style({ border: { left: { style: 'thick', color: "black" }, bottom: { style: 'thick', color: "black" } } })
+                                    ws.cell(cellToInsertProduct + k + 7, 2).style({ border: { right: { style: 'thick', color: "black" }, bottom: { style: 'thick', color: "black" } } })
                                 }
                             }
 
