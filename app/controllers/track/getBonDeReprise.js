@@ -17,7 +17,7 @@ module.exports = class GetBonDeRepriseController {
         this.app.get('/track/bon-de-reprise', async (req, res) => {
             try {
                 res.setHeader("Access-Control-Allow-Origin", "*");
-
+                
                 if (!req.body.boxes || !req.body.id_producteur_dechet || !req.body.id_zone_lavage) {
                     return res.status(400).json({ message: 'Information missing' })
                 }

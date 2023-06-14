@@ -3,6 +3,7 @@ const Produits = require('../../models/produits');
 const ProducteurDechet = require('../../models/producteur_dechets')
 const Track = require('../../models/track');
 const xl = require('excel4node');
+const { signedCookie } = require('cookie-parser');
 
 module.exports = class GetBonDeLivraisonController {
     constructor(app) {
@@ -25,23 +26,29 @@ module.exports = class GetBonDeLivraisonController {
                 const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
                 let todaysDate = new Date().toLocaleDateString('fr-FR', dateOptions);
 
-                const prodDechetName = (await ProducteurDechet.findOne({ where: { id: req.body.id_producteur_dechet } })).nom
+                const prodDechet = await ProducteurDechet.findOne({ where: { id: req.body.id_producteur_dechet } })
+
+                if (!prodDechet) {
+                    return res.status(400).json({ message: 'Le client sélectionné n\'a pas été trouvé dans la base de données.' })
+                }
 
                 const boxes = req.body.boxes
 
                 let infoTrack = []
 
                 for (let i = 0; i < boxes.length; i++) {
-                    let comptageInTrackInfo = await Track.findAll({
+                    let comptageInTrackInfo = await Track.findOne({
                         where: {
                             id_box: boxes[i],
                             id_producteur_dechet: req.body.id_producteur_dechet,
                             id_statut_track: 2
                         },
                         order: [['date_heure', 'DESC']],
-                        limit: 1
                     })
-                    infoTrack.push(comptageInTrackInfo[0])
+
+                    if (comptageInTrackInfo) {
+                        infoTrack.push(comptageInTrackInfo)
+                    }
                 }
 
                 let idsTrack = []
@@ -55,9 +62,9 @@ module.exports = class GetBonDeLivraisonController {
                 let lastTrackWithNumeroBon = await Track.findOne({
                     where: {
                         id_producteur_dechet: req.body.id_producteur_dechet,
-                        numero_bon: !null
+                        id_statut_track: 5,
                     },
-                    order: [['date_heure', 'DESC']],
+                    order: [['numero_bon', 'DESC']],
                     limit: 1
                 })
 
@@ -93,48 +100,68 @@ module.exports = class GetBonDeLivraisonController {
                     },
                 })
 
-                ws.cell(1, 1).string('Bon de livraison').style(headerStyle)
+                ws.cell(1, 1).string('BON DE LIVRAISON').style(headerStyle)
                 ws.cell(2, 1).string('Client')
-                ws.cell(2, 2).string(prodDechetName)
+                ws.cell(2, 2).string(prodDechet.nom)
                 ws.cell(3, 1).string('Numero du bon')
                 ws.cell(3, 2).number(newNumeroBon)
                 ws.cell(4, 1).string("Date du bon")
                 ws.cell(4, 2).string(todaysDate)
 
-                ws.cell(10, 1).string('CASSES PROPES CONCERNES').style(headerStyle)
+                ws.cell(8, 1).string('CASSES PROPES CONCERNES').style(headerStyle)
+
+                let cellToInsertBox = 14
 
                 for (let i = 0; i < boxes.length; i++) {
-                    ws.cell(i + 11, 1).string('Caisse № ' + boxes[i])
+                    ws.cell(i + 9, 1).string('Caisse № ' + boxes[i])
 
-                    let workSheetForBox = wb.addWorksheet('CAISSE № ' + boxes[i]);
+                    ws.cell(cellToInsertBox, 1).string('DETAIL CAISSE № ' + boxes[i]).style(headerStyle)
+                    ws.cell(cellToInsertBox + 2, 1).string('TYPE DE CONTENTANT').style(headerStyle)
+                    ws.cell(cellToInsertBox + 2, 2).string('QTE').style(headerStyle)
 
-                    workSheetForBox.cell(1, 1).string('DETAIL DE CAISSE № ' + boxes[i]).style(headerStyle)
+                    let lastCellInserted = cellToInsertBox + 2
 
-                    workSheetForBox.cell(3, 1).string('TYPE DE PRODUIT').style(headerStyle)
-                    workSheetForBox.cell(3, 2).string('QTE').style(headerStyle)
+                    for (let j = 0; j < infoTrack.length; j++) {
 
-                    for (let j = 0; j < idsTrack.length; j++) {
-                        const infoComptage = await Comptage.findAll({ where: { id_track: idsTrack[j] } })
+                        if (infoTrack[j].id_box === boxes[i]) {
+                            const infoComptage = await Comptage.findAll({ where: { id_track: infoTrack[j].id } })
 
-                        for (let k = 0; k < infoComptage.length; k++) {
-                            const productsName = (await Produits.findByPk(infoComptage[k].id_produit)).nom
-                            const productQTE = infoComptage[k].nb_reel
+                            let cellToInsertProduct = lastCellInserted + 1
 
-                            workSheetForBox.cell(k + 4, 1).string(productsName)
-                            workSheetForBox.cell(k + 4, 2).number(productQTE)
+                            for (let k = 0; k < infoComptage.length; k++) {
+                                const infoProduct = await Produits.findByPk(infoComptage[k].id_produit)
+
+                                if (infoProduct && infoComptage[k].nb_reel) {
+                                    ws.cell(cellToInsertProduct + k, 1).string(infoProduct.nom)
+                                    ws.cell(cellToInsertProduct + k, 2).number(infoComptage[k].nb_reel)
+                                } else {
+                                    ws.cell(cellToInsertProduct + k, 1).string('SANS COMPTAGE')
+                                    ws.cell(cellToInsertProduct + k, 2).string('SANS COMPTAGE')
+                                }
+
+                                if (k === infoComptage.length - 1) {
+                                    ws.cell(cellToInsertProduct + k + 4, 1).string('SIGNATURE CLIENT').style(headerStyle)
+                                }
+                            }
+
+                            lastCellInserted = lastCellInserted + 2
+
                         }
                     }
+
+                    cellToInsertBox = lastCellInserted + 3
+
                 }
 
-                wb.write((todaysDate + ' ' + prodDechetName + '.xlsx'), res);
+                wb.write((todaysDate + ' ' + prodDechet.nom + '.xlsx'), res);
 
             } catch (error) {
                 return res.status(400).json({ message: error.message || "Une erreur s'est produite lors de generer le bon de livraison." });
             }
 
+
         });
     }
-
     /**
      * Run
      */
