@@ -16,6 +16,10 @@ const UploadRebusController = require("./rebus/uploadPhoto");
 const GetPosteByIdController = require("./poste/getById");
 
 const CreateTrackController = require("./track/create");
+const GetBonDeLivraisonController = require("./track/getBonDeLivraison");
+const GetBonDeRepriseController = require("./track/getBonDeReprise");
+const GetLastColisageInTrack = require("./track/getLastColisageInTrack")
+
 const GetProducteurDechet = require("./producteur_dechet/getProducteurDechet");
 
 const GetProductByIdProducteurDechet = require("./products/getProductByIdProducteurDechet");
@@ -33,6 +37,9 @@ module.exports = {
   },
   track: {
     CreateTrackController,
+    GetBonDeLivraisonController,
+    GetBonDeRepriseController,
+    GetLastColisageInTrack
   },
   producteurDechets: {
     GetProducteurDechet,
