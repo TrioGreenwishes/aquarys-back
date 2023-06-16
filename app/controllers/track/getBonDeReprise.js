@@ -1,5 +1,3 @@
-const Comptage = require('../../models/comptage');
-const Produits = require('../../models/produits');
 const ProducteurDechet = require('../../models/producteur_dechets')
 const Track = require('../../models/track');
 const xl = require('excel4node');
@@ -68,27 +66,79 @@ module.exports = class GetBonDeRepriseController {
                         color: 'FFFFFFFF',
                         bold: true
                     },
+                    border: {
+                        left: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        right: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        top: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        bottom: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        outline: false,
+                    },
                 })
 
+                const informationCellStyle = wb.createStyle({
+                    border: {
+                        left: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        right: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        top: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        bottom: {
+                            style: 'medium',
+                            color: 'black',
+                        },
+                        outline: false,
+                    },
+                })
+
+                ws.column(1).setWidth(40);
+                ws.column(2).setWidth(30);
+
                 ws.cell(1, 1).string('Bon de livraison').style(headerStyle)
-                ws.cell(2, 1).string('Client')
-                ws.cell(2, 2).string(prodDechetName)
-                ws.cell(3, 1).string('Numero du bon')
-                ws.cell(3, 2).number(newNumeroBon)
-                ws.cell(4, 1).string("Date du bon")
-                ws.cell(4, 2).string(todaysDate)
+                ws.cell(1, 2).style(headerStyle)
+                ws.cell(2, 1).string('Client').style(informationCellStyle)
+                ws.cell(2, 2).string(prodDechetName).style(informationCellStyle)
+                ws.cell(3, 1).string('Numero du bon').style(informationCellStyle)
+                ws.cell(3, 2).number(newNumeroBon).style(informationCellStyle)
+                ws.cell(4, 1).string("Date du bon").style(informationCellStyle)
+                ws.cell(4, 2).string(todaysDate).style(informationCellStyle)
 
                 ws.cell(8, 1).string('CASSES REÇUES').style(headerStyle)
 
                 for (let i = 0; i < boxes.length; i++) {
-                    ws.cell(i + 9, 1).string('Caisse № ' + boxes[i])
+                    ws.cell(i + 9, 1).string('Caisse № ' + boxes[i]).style(informationCellStyle)
 
                     if (i === boxes.length - 1) {
                         ws.cell(i + 12, 1).string('SIGNATURE CLIENT').style(headerStyle)
+                        ws.cell(i + 12, 2).style(headerStyle)
+                        ws.cell(i + 13, 1).style({ border: { left: { style: 'thick', color: "black" }, top: { style: 'thick', color: "black" } } })
+                        ws.cell(i + 13, 2).style({ border: { right: { style: 'thick', color: "black" }, top: { style: 'thick', color: "black" } } })
+                        ws.cell(i + 14, 1).style({ border: { left: { style: 'thick', color: "black" } } })
+                        ws.cell(i + 14, 2).style({ border: { right: { style: 'thick', color: "black" } } })
+                        ws.cell(i + 15, 1).style({ border: { left: { style: 'thick', color: "black" }, bottom: { style: 'thick', color: "black" } } })
+                        ws.cell(i + 15, 2).style({ border: { right: { style: 'thick', color: "black" }, bottom: { style: 'thick', color: "black" } } })
                     }
                 }
 
-                wb.write(('Bon de reprise' + todaysDate + ' ' + prodDechetName + '.xlsx'), res);
+                wb.write(('Bon de reprise ' + todaysDate + ' ' + prodDechetName + '.xlsx'), res);
 
             } catch (error) {
                 return res.status(400).json({ message: error.message || "Une erreur s'est produite lors de generer le bon de livraison." });

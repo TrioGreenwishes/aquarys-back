@@ -1,9 +1,8 @@
-const Comptage = require('../../models/comptage');
+const Colisage = require('../../models/colisage');
 const Produits = require('../../models/produits');
 const ProducteurDechet = require('../../models/producteur_dechets')
 const Track = require('../../models/track');
 const xl = require('excel4node');
-const { signedCookie } = require('cookie-parser');
 
 module.exports = class GetBonDeLivraisonController {
     constructor(app) {
@@ -37,18 +36,20 @@ module.exports = class GetBonDeLivraisonController {
                 let infoTrack = []
 
                 for (let i = 0; i < boxes.length; i++) {
-                    let comptageInTrackInfo = await Track.findOne({
+                    let colisageInTrackInfo = await Track.findOne({
                         where: {
                             id_box: boxes[i],
                             id_producteur_dechet: req.body.id_producteur_dechet,
-                            id_statut_track: 2
+                            id_statut_track: 4
                         },
                         order: [['date_heure', 'DESC']],
                     })
 
-                    if (comptageInTrackInfo) {
-                        infoTrack.push(comptageInTrackInfo)
+                    if (!colisageInTrackInfo) {
+                        return res.status(400).json({ message: 'Box without colisage in track for this producteur dechets.' })
                     }
+
+                    infoTrack.push(colisageInTrackInfo)
                 }
 
                 let idsTrack = []
@@ -169,22 +170,22 @@ module.exports = class GetBonDeLivraisonController {
                     for (let j = 0; j < infoTrack.length; j++) {
 
                         if (infoTrack[j].id_box === boxes[i]) {
-                            const infoComptage = await Comptage.findAll({ where: { id_track: infoTrack[j].id } })
+                            const infoColisage = await Colisage.findAll({ where: { id_track: infoTrack[j].id } })
 
                             let cellToInsertProduct = lastCellInserted + 1
 
-                            for (let k = 0; k < infoComptage.length; k++) {
-                                const infoProduct = await Produits.findByPk(infoComptage[k].id_produit)
+                            for (let k = 0; k < infoColisage.length; k++) {
+                                const infoProduct = await Produits.findByPk(infoColisage[k].id_produit)
 
-                                if (infoProduct && infoComptage[k].nb_reel) {
+                                if (infoProduct && infoColisage[k].nb_add) {
                                     ws.cell(cellToInsertProduct + k, 1).string(infoProduct.nom).style(informationCellStyle)
-                                    ws.cell(cellToInsertProduct + k, 2).number(infoComptage[k].nb_reel).style(informationCellStyle)
+                                    ws.cell(cellToInsertProduct + k, 2).number(infoColisage[k].nb_add).style(informationCellStyle)
                                 } else {
-                                    ws.cell(cellToInsertProduct + k, 1).string('SANS COMPTAGE').style(informationCellStyle)
-                                    ws.cell(cellToInsertProduct + k, 2).string('SANS COMPTAGE').style(informationCellStyle)
+                                    ws.cell(cellToInsertProduct + k, 1).string('SANS INFORMATION ENREGISTRE').style(informationCellStyle)
+                                    ws.cell(cellToInsertProduct + k, 2).string('SANS INFORMATION ENREGISTRE').style(informationCellStyle)
                                 }
 
-                                if (k === infoComptage.length - 1) {
+                                if (k === infoColisage.length - 1) {
                                     ws.cell(cellToInsertProduct + k + 4, 1).string('SIGNATURE CLIENT').style(headerStyle)
                                     ws.cell(cellToInsertProduct + k + 4, 2).style(headerStyle)
                                     ws.cell(cellToInsertProduct + k + 5, 1).style({ border: { left: { style: 'thick', color: "black" }, top: { style: 'thick', color: "black" } } })
@@ -205,7 +206,7 @@ module.exports = class GetBonDeLivraisonController {
 
                 }
 
-                wb.write((todaysDate + ' ' + prodDechet.nom + '.xlsx'), res);
+                wb.write(('Bon de livraison' + todaysDate + ' ' + prodDechet.nom + '.xlsx'), res);
 
             } catch (error) {
                 return res.status(400).json({ message: error.message || "Une erreur s'est produite lors de generer le bon de livraison." });
