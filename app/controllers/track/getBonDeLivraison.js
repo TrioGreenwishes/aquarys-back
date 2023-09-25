@@ -71,16 +71,19 @@ module.exports = class GetBonDeLivraisonController {
 
                 let newNumeroBon = (lastTrackWithNumeroBon === null) ? 1 : (lastTrackWithNumeroBon.numero_bon + 1)
 
-                const trackCreated = await Track.create({
-                    id_box: null,
-                    id_producteur_dechet: req.body.id_producteur_dechet,
-                    id_zone_lavage: req.body.id_zone_lavage,
-                    id_statut_track: 5,
-                    numero_bon: newNumeroBon
-                })
+                for (let i = 0; i < boxes.length; i++) {
 
-                if (!trackCreated) {
-                    return res.status(400).json({ message: 'Track not created' })
+                    const trackCreated = await Track.create({
+                        id_box: boxes[i],
+                        id_producteur_dechet: req.body.id_producteur_dechet,
+                        id_zone_lavage: req.body.id_zone_lavage,
+                        id_statut_track: 5,
+                        numero_bon: newNumeroBon
+                    })
+
+                    if (!trackCreated) {
+                        return res.status(400).json({ message: 'Track not created' })
+                    }
                 }
 
                 let wb = new xl.Workbook();

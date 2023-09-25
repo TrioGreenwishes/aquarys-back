@@ -29,7 +29,6 @@ module.exports = class CreateComptageController {
 
                 if(!req.body.has_comptage){
                     req.body.has_comptage = 0;
-                    console.log(req.body)
                 };
 
                 await Comptage.create({
