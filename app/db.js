@@ -5,39 +5,24 @@ const sql = require('mssql')
 
 const connectNewProd = new Sequelize('New_Prod', 'eamarelo', 'Gandia2021', {
   dialect: 'mssql',
-  host: 'green-biboard',
-  dialectOptions: {
-    options: {
-      instanceName: 'BIPREPROD'
-    }
-  }
+  host: 'green-biboard'
 })
 
 const connectAquarys = new Sequelize('Aquarys', 'eamarelo', 'Gandia2021', {
   dialect: 'mssql',
-  host: 'green-biboard',
-  dialectOptions: {
-    options: {
-      instanceName: 'BIPREPROD'
-    }
-  }
+  host: 'green-biboard'
 })
 
 const connectContrat = new Sequelize('Contrat', 'eamarelo', 'Gandia2021', {
   dialect: 'mssql',
-  host: 'green-biboard',
-  dialectOptions: {
-    options: {
-      instanceName: 'BIPREPROD'
-    }
-  }
+  host: 'green-biboard'
 })
 
 const config = { 
-  user: process.env.BDD_USER,
-  password: process.env.BDD_MDP,
+  user: 'eamarelo',
+  password: 'Gandia2021',
   // local
-  server: process.env.BDD_SERVER  +"\\" + "BIPREPROD", // You can use 'localhost\\instance' to connect to named instance
+  server: '172.20.69.4', // You can use 'localhost\\instance' to connect to named instance
   // ikoula
  //  server: '193.56.15.196'
   database: process.env.BDD_NAME,

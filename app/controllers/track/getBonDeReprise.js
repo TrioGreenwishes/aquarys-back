@@ -113,15 +113,20 @@ module.exports = class GetBonDeRepriseController {
                     },
                 })
 
-                ws.column(1).setWidth(40);
-                ws.column(2).setWidth(30);
+                ws.column(1).setWidth(15);
+                ws.column(2).setWidth(45);
 
                 ws.cell(1, 1).string('Bon de livraison').style(headerStyle)
                 ws.cell(1, 2).style(headerStyle)
                 ws.cell(2, 1).string('Client').style(informationCellStyle)
                 ws.cell(2, 2).string(prodDechetName).style(informationCellStyle)
                 ws.cell(3, 1).string('Numero du bon').style(informationCellStyle)
-                ws.cell(3, 2).number(newNumeroBon).style(informationCellStyle)
+                ws.cell(3, 2).number(newNumeroBon).style({
+                    ...informationCellStyle,
+                    alignment: {
+                        horizontal: 'left',  // Aligner le contenu à gauche
+                    },
+                })                
                 ws.cell(4, 1).string("Date du bon").style(informationCellStyle)
                 ws.cell(4, 2).string(todaysDate).style(informationCellStyle)
 
